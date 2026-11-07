@@ -19,7 +19,7 @@
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-            overflow-y: auto; /* 스마트폰 스크롤 자유롭게 허용 */
+            overflow-y: auto;
         }
 
         body {
@@ -31,7 +31,7 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 15px;
+            padding: 12px;
         }
 
         /* 메인 레이아웃 (PC & 가로모드) */
@@ -42,7 +42,7 @@
             width: 100%;
             max-width: 1400px;
             flex: 1;
-            min-height: calc(100vh - 80px);
+            min-height: calc(100vh - 75px);
         }
 
         /* 좌측: 대형 슬롯머신 */
@@ -79,17 +79,17 @@
             font-size: clamp(1.8rem, 3vw, 2.6rem);
             margin: 0;
             text-shadow: 2px 2px 0px #bfdbfe;
-            white-space: nowrap; /* 한 줄 유지 */
+            white-space: nowrap;
         }
 
         .list-title {
             color: #047857;
-            font-size: clamp(1.5rem, 2.5vw, 2.2rem);
+            font-size: clamp(1.4rem, 2.3vw, 2.2rem);
             margin: 0 0 10px 0;
             text-align: center;
             border-bottom: 4px dashed #a7f3d0;
             padding-bottom: 10px;
-            white-space: nowrap; /* 한 줄 유지 */
+            white-space: nowrap;
         }
 
         /* 슬롯머신 영역 */
@@ -118,7 +118,6 @@
             justify-content: center;
         }
 
-        /* 숫자 디스플레이 */
         .digit-box {
             width: 100%;
             max-width: 130px;
@@ -158,7 +157,7 @@
             box-shadow: 0 4px 0 #c2410c;
             width: 100%;
             max-width: 130px;
-            white-space: nowrap; /* 한 줄 유지 */
+            white-space: nowrap;
             transition: all 0.1s ease;
         }
 
@@ -183,7 +182,7 @@
             cursor: pointer;
             flex: 1;
             max-width: 250px;
-            white-space: nowrap; /* 한 줄 유지 */
+            white-space: nowrap;
             transition: all 0.1s ease;
         }
 
@@ -205,11 +204,12 @@
         .btn-all-stop:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 #6d28d9; }
         .btn-all-stop:disabled { background-color: #d1d5db; box-shadow: 0 4px 0 #9ca3af; cursor: not-allowed; }
 
+        /* 당첨자 명단 컨테이너 (기본 PC: 스크롤) */
         .winner-list-container {
             flex: 1;
             overflow-y: auto;
             padding-right: 5px;
-            max-height: 600px;
+            max-height: 550px;
         }
 
         .winner-list-container::-webkit-scrollbar { width: 8px; }
@@ -226,7 +226,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            white-space: nowrap; /* 당첨자 항목 한 줄 유지 */
+            white-space: nowrap;
             animation: slideIn 0.3s ease-out;
         }
 
@@ -252,20 +252,38 @@
             white-space: nowrap;
         }
 
+        /* [당첨자 모두 보기] 토글 버튼 */
+        .btn-toggle-list {
+            background-color: #0ea5e9;
+            color: white;
+            font-family: 'Jua', sans-serif;
+            font-size: 1rem;
+            padding: 8px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+            box-shadow: 0 3px 0 #0284c7;
+            white-space: nowrap;
+        }
+        .btn-toggle-list:hover { background-color: #0284c7; }
+
+        /* 하단 학교 슬로건 (포인트 축소 및 한 줄 고정) */
         .school-footer {
-            margin-top: 15px;
-            font-size: clamp(0.9rem, 1.3vw, 1.2rem);
+            margin-top: 10px;
+            font-size: clamp(0.7rem, 2.2vw, 1.1rem);
             color: #1e3a8a;
             font-weight: bold;
-            background: rgba(255, 255, 255, 0.85);
-            padding: 8px 20px;
-            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 6px 15px;
+            border-radius: 12px;
             box-shadow: 0 3px 8px rgba(0,0,0,0.05);
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             text-align: center;
             width: 100%;
             max-width: 1400px;
-            white-space: nowrap; /* 한 줄 유지 */
+            white-space: nowrap; /* 한 줄 고정 */
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -328,37 +346,44 @@
             white-space: nowrap;
         }
 
-        /* 📱 스마트폰 세로 모드 최적화 (위: 명단, 아래: 뽑기 / 스크롤 자유 적용) */
+        /* 📱 스마트폰 세로 모드 최적화 (1명만 보이게 높이 제한 및 스크롤) */
         @media (max-width: 800px) and (orientation: portrait) {
             .app-layout {
                 flex-direction: column-reverse; /* 위: 명단, 아래: 뽑기 */
                 min-height: auto;
-                gap: 15px;
+                gap: 12px;
             }
 
             .left-section, .right-section {
                 min-height: auto;
-                padding: 15px 10px;
+                padding: 12px 10px;
             }
 
+            /* 모바일 세로모드에서는 딱 1명(약 65px)만 보이도록 높이 제한 후 스크롤 */
             .winner-list-container {
-                max-height: 250px; /* 세로 모드 명단 스크롤 영역 */
+                max-height: 72px; 
+                transition: max-height 0.3s ease;
+            }
+
+            /* 모두 보기 버튼을 눌렀을 때 확장 클래스 */
+            .winner-list-container.expanded {
+                max-height: 220px;
             }
 
             .digit-box {
-                height: 100px;
-                font-size: 3rem;
+                height: 95px;
+                font-size: 2.8rem;
                 border-width: 4px;
             }
 
             .slot-machine {
-                padding: 10px 5px;
+                padding: 8px 4px;
                 gap: 6px;
             }
 
             .btn-stop {
-                font-size: 0.85rem;
-                padding: 6px 0;
+                font-size: 0.8rem;
+                padding: 5px 0;
             }
 
             .control-panel {
@@ -366,8 +391,8 @@
             }
 
             .btn-draw, .btn-all-stop {
-                font-size: 1.1rem;
-                padding: 10px 10px;
+                font-size: 1rem;
+                padding: 8px 10px;
             }
         }
     </style>
@@ -375,9 +400,9 @@
 <body onclick="initAudioOnInteraction()">
 
 <div class="app-layout">
-    <!-- 슬롯머신 영역 (세로 모드에서는 아래에 위치) -->
+    <!-- 슬롯머신 영역 -->
     <div class="left-section">
-        <h1>🎁 두근두근 경품 추첨 🎁</h1>
+        <h1>🎁 경품 추첨 🎁</h1>
         
         <div class="slot-machine">
             <div class="slot-column">
@@ -404,12 +429,13 @@
         </div>
     </div>
 
-    <!-- 당첨자 명단 영역 (세로 모드에서는 위에 위치) -->
+    <!-- 당첨자 명단 영역 -->
     <div class="right-section">
         <div class="list-title">🏆 당첨자 명단 🏆</div>
         <div class="winner-list-container" id="winnerList">
             <!-- 당첨 내역 추가 위치 -->
         </div>
+        <button class="btn-toggle-list" id="toggleListBtn" onclick="toggleWinnerList()">📋 당첨자 모두 보기</button>
     </div>
 </div>
 
@@ -576,6 +602,18 @@
             origin: { y: 0.5 },
             zIndex: 9999
         });
+    }
+
+    // 당첨자 모두 보기 토글 함수
+    function toggleWinnerList() {
+        const listContainer = document.getElementById('winnerList');
+        const btn = document.getElementById('toggleListBtn');
+        listContainer.classList.toggle('expanded');
+        if (listContainer.classList.contains('expanded')) {
+            btn.innerText = "📋 당첨자 접기";
+        } else {
+            btn.innerText = "📋 당첨자 모두 보기";
+        }
     }
 
     const historySet = new Set();
