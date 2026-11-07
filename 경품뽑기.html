@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎈 두근두근 대형 초등 경품 뽑기 🎈</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <!-- Custom Font: Jua -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
+    <style>
+        body {
+            font-family: 'Jua', '맑은 고딕', sans-serif;
+            background-color: #f0f9ff;
+            background-image: radial-gradient(#bae6fd 2.5px, transparent 2.5px);
+            background-size: 28px 28px;
+        }
+
+        /* Rolling digit bounce animation */
+        .digit-box.rolling {
+            animation: bounce 0.08s infinite alternate;
+            color: #60a5fa;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(-4px); }
+            to { transform: translateY(4px); }
+        }
+
+        /* Custom scrollbar for winner list */
+        .winner-list-container::-webkit-scrollbar {
+            width: 10px;
+        }
+        .winner-list-container::-webkit-scrollbar-thumb {
+            background: #34d399;
+            border-radius: 10px;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .winner-item {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes popUp {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-animated {
+            animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between items-center p-3 sm:p-6" onclick="initAudioOnInteraction()">
+
+    <!-- Main Container -->
+    <div class="w-full max-w-7xl flex flex-col flex-grow justify-center items-center">
+        
+        <!-- App Layout: Left (Machine) & Right (Winners List) Equal Heights -->
+        <div class="app-layout flex flex-row gap-4 sm:gap-6 w-full items-stretch my-auto min-h-[580px] sm:min-h-[650px] h-[78vh]">
+            
+            <!-- LEFT SECTION: Slot Machine -->
+            <div class="left-section flex-1 bg-white border-4 sm:border-8 border-blue-500 rounded-3xl sm:rounded-[40px] p-4 sm:p-7 shadow-2xl text-center flex flex-col justify-between items-center">
+                <h1 class="text-2xl sm:text-4xl text-blue-700 tracking-wide font-bold drop-shadow-[2px_2px_0_#bfdbfe]">
+                    🎁 두근두근 경품 추첨 🎁
+                </h1>
+                
+                <!-- Slot Machine Box -->
+                <div class="slot-machine bg-amber-100 border-4 sm:border-8 border-amber-500 rounded-2xl sm:rounded-[30px] p-3 sm:p-5 flex justify-center gap-2 sm:gap-4 shadow-inner w-full my-2 sm:my-4 flex-grow items-center">
+                    
+                    <!-- Slot Column 1 -->
+                    <div class="slot-column flex flex-col items-center gap-2 flex-1 h-full justify-center">
+                        <div class="digit-box w-full h-[65%] min-h-[160px] sm:min-h-[220px] bg-white border-4 sm:border-6 border-blue-500 rounded-xl sm:rounded-3xl flex justify-center items-center text-5xl sm:text-7xl font-extrabold text-blue-900 shadow-inner border-b-8 border-b-blue-600 select-none" id="digit1">?</div>
+                        <button class="btn-stop w-full bg-orange-500 hover:bg-orange-600 active:translate-y-1 text-white font-normal text-sm sm:text-xl py-2 px-1 border-b-4 border-orange-700 rounded-xl transition duration-100 disabled:bg-gray-300 disabled:border-gray-400 disabled:text-gray-500 disabled:cursor-not-allowed shadow-md" id="stopBtn1" onclick="stopDigit(0)" disabled>1번째 멈춤</button>
+                    </div>
+
+                    <!-- Slot Column 2 -->
+                    <div class="slot-column flex flex-col items-center gap-2 flex-1 h-full justify-center">
+                        <div class="digit-box w-full h-[65%] min-h-[160px] sm:min-h-[220px] bg-white border-4 sm:border-6 border-blue-500 rounded-xl sm:rounded-3xl flex justify-center items-center text-5xl sm:text-7xl font-extrabold text-blue-900 shadow-inner border-b-8 border-b-blue-600 select-none" id="digit2">?</div>
+                        <button class="btn-stop w-full bg-orange-500 hover:bg-orange-600 active:translate-y-1 text-white font-normal text-sm sm:text-xl py-2 px-1 border-b-4 border-orange-700 rounded-xl transition duration-100 disabled:bg-gray-300 disabled:border-gray-400 disabled:text-gray-500 disabled:cursor-not-allowed shadow-md" id="stopBtn2" onclick="stopDigit(1)" disabled>2번째 멈춤</button>
+                    </div>
+
+                    <!-- Slot Column 3 -->
+                    <div class="slot-column flex flex-col items-center gap-2 flex-1 h-full justify-center">
+                        <div class="digit-box w-full h-[65%] min-h-[160px] sm:min-h-[220px] bg-white border-4 sm:border-6 border-blue-500 rounded-xl sm:rounded-3xl flex justify-center items-center text-5xl sm:text-7xl font-extrabold text-blue-900 shadow-inner border-b-8 border-b-blue-600 select-none" id="digit3">?</div>
+                        <button class="btn-stop w-full bg-orange-500 hover:bg-orange-600 active:translate-y-1 text-white font-normal text-sm sm:text-xl py-2 px-1 border-b-4 border-orange-700 rounded-xl transition duration-100 disabled:bg-gray-300 disabled:border-gray-400 disabled:text-gray-500 disabled:cursor-not-allowed shadow-md" id="stopBtn3" onclick="stopDigit(2)" disabled>3번째 멈춤</button>
+                    </div>
+
+                    <!-- Slot Column 4 -->
+                    <div class="slot-column flex flex-col items-center gap-2 flex-1 h-full justify-center">
+                        <div class="digit-box w-full h-[65%] min-h-[160px] sm:min-h-[220px] bg-white border-4 sm:border-6 border-blue-500 rounded-xl sm:rounded-3xl flex justify-center items-center text-5xl sm:text-7xl font-extrabold text-blue-900 shadow-inner border-b-8 border-b-blue-600 select-none" id="digit4">?</div>
+                        <button class="btn-stop w-full bg-orange-500 hover:bg-orange-600 active:translate-y-1 text-white font-normal text-sm sm:text-xl py-2 px-1 border-b-4 border-orange-700 rounded-xl transition duration-100 disabled:bg-gray-300 disabled:border-gray-400 disabled:text-gray-500 disabled:cursor-not-allowed shadow-md" id="stopBtn4" onclick="stopDigit(3)" disabled>4번째 멈춤</button>
+                    </div>
+
+                </div>
+
+                <!-- Control Panel -->
+                <div class="control-panel flex gap-3 w-full justify-center items-center">
+                    <button class="btn-draw flex-1 bg-red-500 hover:bg-red-600 active:translate-y-1 text-white text-lg sm:text-2xl py-3 px-4 rounded-full border-b-4 border-red-700 shadow-lg transition duration-100 disabled:bg-gray-400 disabled:border-gray-500 disabled:cursor-not-allowed" id="drawBtn" onclick="startSlot()">
+                        추첨 시작!
+                    </button>
+                    <button class="btn-all-stop flex-1 bg-purple-500 hover:bg-purple-600 active:translate-y-1 text-white text-lg sm:text-2xl py-3 px-4 rounded-full border-b-4 border-purple-700 shadow-lg transition duration-100 disabled:bg-gray-300 disabled:border-gray-400 disabled:cursor-not-allowed" id="allStopBtn" onclick="stopAllDigits()" disabled>
+                        한꺼번에 멈춤
+                    </button>
+                </div>
+            </div>
+
+            <!-- RIGHT SECTION: Winner List (Equal Height) -->
+            <div class="right-section w-[38%] sm:w-[35%] bg-white border-4 sm:border-8 border-emerald-500 rounded-3xl sm:rounded-[40px] p-4 sm:p-6 shadow-2xl flex flex-col h-full">
+                <div class="list-title text-emerald-700 text-xl sm:text-3xl font-bold text-center border-b-4 border-dashed border-emerald-200 pb-3 mb-3">
+                    🏆 당첨자 명단 🏆
+                </div>
+                <div class="winner-list-container flex-1 overflow-y-auto pr-1 sm:pr-2" id="winnerList">
+                    <!-- Winners appended here -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- School Footer Banner -->
+        <div class="school-footer mt-4 text-center text-sm sm:text-xl text-blue-900 font-bold bg-white/80 backdrop-blur-sm py-2.5 px-6 rounded-2xl shadow-sm border border-blue-100 tracking-wider w-full">
+            ✨ 온마음으로 미래를 여는 행복 김천다수초등학교 ✨
+        </div>
+
+    </div>
+
+    <!-- WINNER MODAL POPUP -->
+    <div class="modal-overlay fixed inset-0 bg-black/60 backdrop-blur-sm justify-center items-center z-[1000] p-4 hidden" id="resultModal">
+        <div class="modal-content modal-animated bg-white border-8 border-amber-400 rounded-3xl sm:rounded-[40px] p-6 sm:p-12 text-center shadow-2xl relative z-[1001] w-full max-w-lg">
+            <div class="modal-title text-3xl sm:text-5xl text-amber-600 font-bold mb-3 sm:mb-6">🎉 축하합니다! 🎉</div>
+            <div class="modal-code text-5xl sm:text-7xl text-blue-700 tracking-[8px] sm:tracking-[14px] bg-blue-50 border-4 sm:border-6 border-dashed border-blue-400 rounded-3xl py-3 px-6 my-4 inline-block font-extrabold shadow-inner" id="modalCode">0000</div>
+            <br>
+            <button class="modal-close-btn bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xl sm:text-2xl py-3 px-8 sm:px-10 rounded-full border-b-4 border-emerald-700 shadow-md transition transform active:scale-95 mt-4" onclick="closeModal()">확인 및 다음 추첨</button>
+        </div>
+    </div>
+
+<script>
+    // Audio Context Synthesizer Engine
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    let bgmInterval = null;
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new AudioCtx();
+    }
+
+    function initAudioOnInteraction() {
+        initAudio();
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        if (!bgmInterval) {
+            startBGM();
+        }
+    }
+
+    // Dynamic BGM synth loop
+    function startBGM() {
+        initAudio();
+        if (bgmInterval) return;
+
+        const melodyNotes = [
+            261.63, 329.63, 392.00, 523.25,
+            293.66, 349.23, 440.00, 587.33,
+            329.63, 392.00, 493.88, 659.25,
+            349.23, 440.00, 523.25, 698.46
+        ];
+        
+        let step = 0;
+
+        bgmInterval = setInterval(() => {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.type = 'triangle';
+            osc.frequency.value = melodyNotes[step % melodyNotes.length];
+            
+            const now = audioCtx.currentTime;
+            gain.gain.setValueAtTime(0.05, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.18);
+
+            step++;
+        }, 150);
+    }
+
+    function stopBGM() {
+        if (bgmInterval) {
+            clearInterval(bgmInterval);
+            bgmInterval = null;
+        }
+    }
+
+    // Sound effect: Digit Stop 'Ding'
+    function playStopSound() {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1046.5, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+    }
+
+    // Sound effect: Tick sound while rolling
+    function playTickSound() {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(150 + Math.random() * 50, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.04);
+    }
+
+    // Sound effect: Fanfare + Wow Cheer + Fireworks Noise
+    function playWowAndFanfare() {
+        initAudio();
+        const now = audioCtx.currentTime;
+
+        // 1. Wow voice synth sweep
+        const wowOsc = audioCtx.createOscillator();
+        const wowGain = audioCtx.createGain();
+        wowOsc.type = 'sawtooth';
+        wowOsc.frequency.setValueAtTime(300, now);
+        wowOsc.frequency.exponentialRampToValueAtTime(600, now + 0.2);
+        wowOsc.frequency.exponentialRampToValueAtTime(400, now + 0.4);
+        wowGain.gain.setValueAtTime(0.2, now);
+        wowGain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+        wowOsc.connect(wowGain);
+        wowGain.connect(audioCtx.destination);
+        wowOsc.start(now);
+        wowOsc.stop(now + 0.5);
+
+        // 2. Fireworks pop noise
+        const bufferSize = audioCtx.sampleRate * 0.4;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const noiseFilter = audioCtx.createBiquadFilter();
+        noiseFilter.type = 'lowpass';
+        noiseFilter.frequency.setValueAtTime(800, now);
+        noiseFilter.frequency.linearRampToValueAtTime(200, now + 0.4);
+        const noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(0.3, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(audioCtx.destination);
+        noise.start(now);
+
+        // 3. Victory Fanfare Arpeggio
+        const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+        notes.forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+            const startTime = now + idx * 0.08;
+            gain.gain.setValueAtTime(0.2, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(startTime);
+            osc.stop(startTime + 0.3);
+        });
+    }
+
+    // Canvas Confetti at top z-index
+    function triggerTopConfetti() {
+        confetti({
+            particleCount: 200,
+            spread: 130,
+            origin: { y: 0.5 },
+            zIndex: 9999
+        });
+    }
+
+    // State Variables
+    const historySet = new Set();
+    let winnerCount = 0;
+    let finalNumbers = [];
+    let intervals = [null, null, null, null];
+    let isRolling = [false, false, false, false];
+    let currentStep = 0;
+
+    function getRandomChoice(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    // Customized Rules Generation for Elementary School Grades/Classes
+    function generateSingleCandidate() {
+        const d1 = getRandomChoice([1, 2, 3, 4, 5, 6]);
+        let d2 = (d1 === 5) ? getRandomChoice([1, 2]) : 1;
+        let d3 = (d1 === 3) ? getRandomChoice([0, 1, 2]) : getRandomChoice([0, 1]);
+
+        let d4;
+        if (d1 === 1) {
+            d4 = (d3 === 0) ? getRandomChoice([1,2,3,4,5,6,7,8,9]) : 0;
+        } else if (d1 === 2) {
+            d4 = (d3 === 0) ? getRandomChoice([1,2,3,4,5,6,7,8,9]) : getRandomChoice([0, 1]);
+        } else if (d1 === 3) {
+            if (d3 === 0) {
+                d4 = getRandomChoice([1,2,3,4,5,6,7,8,9]);
+            } else if (d3 === 1) {
+                d4 = getRandomChoice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]); // 3학년 1반: 0~9 모두 선택 가능
+            } else if (d3 === 2) {
+                d4 = getRandomChoice([0, 1, 2]);
+            }
+        } else if (d1 === 4) {
+            d4 = (d3 === 0) ? getRandomChoice([1,2,3,4,5,6,7,8,9]) : getRandomChoice([0, 1, 2, 3, 4, 5]);
+        } else if (d1 === 5) {
+            d4 = (d3 === 0) ? getRandomChoice([1,2,3,4,5,6,7,8,9]) : getRandomChoice([0, 1, 2, 3, 4]);
+        } else if (d1 === 6) {
+            d4 = (d3 === 0) ? getRandomChoice([1,2,3,4,5,6,7,8,9]) : getRandomChoice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        }
+
+        return [d1, d2, d3, d4];
+    }
+
+    function getUniqueNumbers() {
+        let attempts = 0;
+        while (attempts < 3000) {
+            const candidate = generateSingleCandidate();
+            const code = candidate.join('');
+            if (!historySet.has(code)) {
+                historySet.add(code);
+                return candidate;
+            }
+            attempts++;
+        }
+        return null;
+    }
+
+    function startSlot() {
+        finalNumbers = getUniqueNumbers();
+        if (!finalNumbers) {
+            alert("⚠️ 모든 대상자의 추첨이 완료되었습니다!");
+            return;
+        }
+
+        document.getElementById('drawBtn').disabled = true;
+        document.getElementById('allStopBtn').disabled = false;
+        currentStep = 0;
+
+        startBGM();
+
+        for (let i = 0; i < 4; i++) {
+            const box = document.getElementById(`digit${i+1}`);
+            box.classList.add('rolling');
+            isRolling[i] = true;
+
+            intervals[i] = setInterval(() => {
+                box.innerText = Math.floor(Math.random() * 10);
+                if (i === currentStep) playTickSound();
+            }, 60);
+
+            document.getElementById(`stopBtn${i+1}`).disabled = (i !== 0);
+        }
+    }
+
+    function stopDigit(index) {
+        if (!isRolling[index]) return;
+
+        clearInterval(intervals[index]);
+        isRolling[index] = false;
+
+        const box = document.getElementById(`digit${index+1}`);
+        box.classList.remove('rolling');
+        box.innerText = finalNumbers[index];
+
+        playStopSound();
+        document.getElementById(`stopBtn${index+1}`).disabled = true;
+
+        currentStep = index + 1;
+
+        if (currentStep < 4) {
+            document.getElementById(`stopBtn${currentStep+1}`).disabled = false;
+        } else {
+            finishDraw();
+        }
+    }
+
+    function stopAllDigits() {
+        for (let i = 0; i < 4; i++) {
+            if (isRolling[i]) {
+                clearInterval(intervals[i]);
+                isRolling[i] = false;
+                const box = document.getElementById(`digit${i+1}`);
+                box.classList.remove('rolling');
+                box.innerText = finalNumbers[i];
+                document.getElementById(`stopBtn${i+1}`).disabled = true;
+            }
+        }
+        playStopSound();
+        finishDraw();
+    }
+
+    function finishDraw() {
+        stopBGM();
+        document.getElementById('allStopBtn').disabled = true;
+
+        setTimeout(() => {
+            playWowAndFanfare();
+            triggerTopConfetti();
+            showModal(finalNumbers.join(''));
+            addWinnerToList(finalNumbers.join(''));
+        }, 300);
+    }
+
+    function showModal(code) {
+        document.getElementById('modalCode').innerText = code;
+        const modal = document.getElementById('resultModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('resultModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.getElementById('drawBtn').disabled = false;
+    }
+
+    function addWinnerToList(code) {
+        winnerCount++;
+        const winnerList = document.getElementById('winnerList');
+        
+        const item = document.createElement('div');
+        item.className = 'winner-item bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-2.5 sm:p-3 mb-2.5 text-base sm:text-xl text-emerald-900 flex justify-between items-center shadow-sm';
+        item.innerHTML = `
+            <span class="winner-rank bg-emerald-500 text-white px-2.5 py-1 rounded-full text-xs sm:text-sm font-bold">${winnerCount}번 당첨</span>
+            <span class="winner-code text-lg sm:text-2xl tracking-[3px] text-emerald-800 font-extrabold">${code}</span>
+        `;
+
+        winnerList.appendChild(item);
+        winnerList.scrollTop = winnerList.scrollHeight;
+    }
+
+    window.onload = function() {
+        setTimeout(() => {
+            startBGM();
+        }, 500);
+    };
+</script>
+
+</body>
+</html>
