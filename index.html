@@ -2,49 +2,290 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🎈 두근두근 대형 초등 경품 뽑기 🎈</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Canvas Confetti Library -->
+    <!-- 폭죽 효과 라이브러리 -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <!-- Custom Font: Jua -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* 화면 전체 비율 고정 */
+        }
+
         body {
             font-family: 'Jua', '맑은 고딕', sans-serif;
             background-color: #f0f9ff;
             background-image: radial-gradient(#bae6fd 2.5px, transparent 2.5px);
-            background-size: 28px 28px;
+            background-size: 30px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
         }
 
-        /* Rolling digit bounce animation */
+        /* 기본 메인 레이아웃 (PC & 스마트폰 가로 모드: 16:9 감성 2단 구조) */
+        .app-layout {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            width: 100%;
+            max-width: 1400px;
+            flex: 1;
+            height: calc(100% - 45px);
+        }
+
+        /* 좌측: 대형 슬롯머신 */
+        .left-section {
+            flex: 1.3;
+            background: white;
+            border: 8px solid #3b82f6;
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* 우측: 당첨 명단 */
+        .right-section {
+            flex: 0.7;
+            background: white;
+            border: 8px solid #10b981;
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        h1 {
+            color: #1d4ed8;
+            font-size: clamp(1.8rem, 3vw, 2.6rem);
+            margin: 0;
+            text-shadow: 2px 2px 0px #bfdbfe;
+        }
+
+        .list-title {
+            color: #047857;
+            font-size: clamp(1.5rem, 2.5vw, 2.2rem);
+            margin: 0 0 10px 0;
+            text-align: center;
+            border-bottom: 4px dashed #a7f3d0;
+            padding-bottom: 10px;
+        }
+
+        /* 슬롯머신 영역 */
+        .slot-machine {
+            background-color: #fef08a;
+            border: 6px solid #f59e0b;
+            border-radius: 25px;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: inset 0 6px 12px rgba(0,0,0,0.15);
+            width: 100%;
+            flex: 1;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .slot-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            height: 100%;
+            justify-content: center;
+        }
+
+        /* 숫자 디스플레이 (꽉 차 보이게 조정) */
+        .digit-box {
+            width: 100%;
+            max-width: 130px;
+            height: 80%;
+            max-height: 180px;
+            background: white;
+            border: 5px solid #3b82f6;
+            border-radius: 22px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(3.5rem, 6vw, 6rem);
+            font-weight: bold;
+            color: #1e3a8a;
+            box-shadow: inset 0 5px 10px rgba(0,0,0,0.15), 0 5px 0 #2563eb;
+            user-select: none;
+        }
+
         .digit-box.rolling {
             animation: bounce 0.08s infinite alternate;
             color: #60a5fa;
         }
 
         @keyframes bounce {
-            from { transform: translateY(-4px); }
-            to { transform: translateY(4px); }
+            from { transform: translateY(-3px); }
+            to { transform: translateY(3px); }
         }
 
-        /* Custom scrollbar for winner list */
-        .winner-list-container::-webkit-scrollbar {
-            width: 10px;
+        .btn-stop {
+            background-color: #f97316;
+            color: white;
+            font-family: 'Jua', sans-serif;
+            font-size: clamp(1rem, 1.5vw, 1.3rem);
+            padding: 8px 4px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #c2410c;
+            width: 100%;
+            max-width: 130px;
+            transition: all 0.1s ease;
         }
-        .winner-list-container::-webkit-scrollbar-thumb {
-            background: #34d399;
-            border-radius: 10px;
+
+        .btn-stop:hover:not(:disabled) { background-color: #ea580c; }
+        .btn-stop:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #c2410c; }
+        .btn-stop:disabled { background-color: #d1d5db; box-shadow: 0 3px 0 #9ca3af; cursor: not-allowed; color: #9ca3af; }
+
+        .control-panel {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-draw, .btn-all-stop {
+            font-family: 'Jua', sans-serif;
+            font-size: clamp(1.3rem, 2vw, 1.8rem);
+            padding: 10px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            flex: 1;
+            max-width: 250px;
+            transition: all 0.1s ease;
+        }
+
+        .btn-draw {
+            background-color: #ef4444;
+            color: white;
+            box-shadow: 0 6px 0 #b91c1c, 0 10px 15px rgba(0,0,0,0.2);
+        }
+        .btn-draw:hover:not(:disabled) { background-color: #dc2626; }
+        .btn-draw:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 #b91c1c; }
+        .btn-draw:disabled { background-color: #9ca3af; box-shadow: 0 4px 0 #4b5563; cursor: not-allowed; }
+
+        .btn-all-stop {
+            background-color: #8b5cf6;
+            color: white;
+            box-shadow: 0 6px 0 #6d28d9, 0 10px 15px rgba(0,0,0,0.2);
+        }
+        .btn-all-stop:hover:not(:disabled) { background-color: #7c3aed; }
+        .btn-all-stop:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 #6d28d9; }
+        .btn-all-stop:disabled { background-color: #d1d5db; box-shadow: 0 4px 0 #9ca3af; cursor: not-allowed; }
+
+        .winner-list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .winner-list-container::-webkit-scrollbar { width: 8px; }
+        .winner-list-container::-webkit-scrollbar-thumb { background: #34d399; border-radius: 10px; }
+
+        .winner-item {
+            background-color: #ecfdf5;
+            border: 2px solid #a7f3d0;
+            border-radius: 15px;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+            color: #065f46;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.3s ease-out;
         }
 
         @keyframes slideIn {
-            from { transform: translateX(30px); opacity: 0; }
+            from { transform: translateX(20px); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
 
-        .winner-item {
-            animation: slideIn 0.3s ease-out;
+        .winner-rank {
+            background-color: #10b981;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+
+        .winner-code {
+            font-size: 1.3em;
+            letter-spacing: 3px;
+            color: #047857;
+            font-weight: bold;
+        }
+
+        .school-footer {
+            height: 35px;
+            font-size: clamp(0.9rem, 1.4vw, 1.3rem);
+            color: #1e3a8a;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 6px 20px;
+            border-radius: 15px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+            letter-spacing: 1px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border: 8px solid #f59e0b;
+            border-radius: 30px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            z-index: 1001;
+            width: 90%;
+            max-width: 450px;
         }
 
         @keyframes popUp {
@@ -52,96 +293,129 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        .modal-animated {
-            animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .modal-title { font-size: clamp(2rem, 4vw, 3rem); color: #d97706; margin-bottom: 10px; }
+        .modal-code {
+            font-size: clamp(3.5rem, 8vw, 6rem);
+            color: #1d4ed8;
+            letter-spacing: 8px;
+            background: #eff6ff;
+            border: 4px dashed #3b82f6;
+            border-radius: 20px;
+            padding: 10px 20px;
+            margin: 15px 0;
+            display: inline-block;
+        }
+
+        .modal-close-btn {
+            background-color: #10b981;
+            color: white;
+            font-family: 'Jua', sans-serif;
+            font-size: 1.4rem;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #047857;
+        }
+
+        /* 📱 반응형: 스마트폰 세로 모드 (9:16 비율 대응 및 위:명단 / 아래:뽑기 전환) */
+        @media (orientation: portrait) and (max-width: 800px) {
+            .app-layout {
+                flex-direction: column-reverse; /* 아래:뽑기 / 위:명단 역순 배치 */
+                gap: 12px;
+            }
+
+            .left-section {
+                flex: 1.2; /* 하단 슬롯머신 */
+                padding: 15px;
+            }
+
+            .right-section {
+                flex: 0.8; /* 상단 당첨자 명단 */
+                padding: 12px;
+            }
+
+            .slot-machine {
+                padding: 10px;
+                margin: 5px 0;
+            }
+
+            .digit-box {
+                height: 100%;
+                max-height: 110px;
+                font-size: 3.8rem;
+                border-width: 4px;
+            }
+
+            .btn-stop {
+                padding: 5px 2px;
+                font-size: 1rem;
+            }
+
+            .school-footer {
+                font-size: 0.9rem;
+                height: 30px;
+                padding: 4px 10px;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between items-center p-3 sm:p-6" onclick="initAudioOnInteraction()">
+<body onclick="initAudioOnInteraction()">
 
-    <!-- Main Container -->
-    <div class="w-full max-w-7xl flex flex-col flex-grow justify-center items-center">
+<div class="app-layout">
+    <!-- 슬롯머신 영역 (세로 모드에서는 아래로 배치됨) -->
+    <div class="left-section">
+        <h1>🎁 두근두근 경품 추첨 🎁</h1>
         
-        <!-- App Layout: Left (Machine) & Right (Winners List) Equal Heights -->
-        <div class="app-layout flex flex-row gap-4 sm:gap-6 w-full items-stretch my-auto min-h-[580px] sm:min-h-[650px] h-[78vh]">
-            
-            <!-- LEFT SECTION: Slot Machine -->
-            <div class="left-section flex-1 bg-white border-4 sm:border-8 border-blue-500 rounded-3xl sm:rounded-[40px] p-4 sm:p-7 shadow-2xl text-center flex flex-col justify-between items-center">
-                <h1 class="text-2xl sm:text-4xl text-blue-700 tracking-wide font-bold drop-shadow-[2px_2px_0_#bfdbfe]">
-                    🎁 두근두근 경품 추첨 🎁
-                </h1>
-                
-                <!-- Slot Machine Box -->
-                <div class="slot-machine bg-amber-100 border-4 sm:border-8 border-amber-500 rounded-2xl sm:rounded-[30px] p-3 sm:p-5 flex justify-center gap-2 sm:gap-4 shadow-inner w-full my-2 sm:my-4 flex-grow items-center">
-                    
-                    <!-- Slot Column 1 -->
-                    <div class="slot-column flex flex-col items-center gap-2 flex-1 h-full justify-center">
-                        <div class="digit-box w-full h-[65%] min-h-[160px] sm:min-h-[220px] bg-white border-4 sm:border-6 border-blue-500 rounded-xl sm:rounded-3xl flex justify-center items-center text-5xl sm:text-7xl font-extrabold text-blue-900 shadow-inner border-b-8 border-b-blue-600 select-none" id="digit1">?</div>
-                        <button class="btn-stop w-full bg-orange-500 hover:bg-orange-600 active:translate-y-1 text-white font-normal text-sm sm:text-xl py-2 px-1 border-b-4 border-orange-700 rounded-xl transition duration-100 disabled:bg-gray-300 disabled:border-gray-400 disabled:text-gray-500 disabled:cursor-not-allowed shadow-md" id="stopBtn1" onclick="stopDigit(0)" disabled>1번째 멈춤</button>
-                    </div>
-
-                    <!-- Slot Column 2 -->
-                    <div class="slot-column flex flex-col items-center gap-2 flex-1 h-full justify-center">
-                        <div class="digit-box w-full h-[65%] min-h-[160px] sm:min-h-[220px] bg-white border-4 sm:border-6 border-blue-500 rounded-xl sm:rounded-3xl flex justify-center items-center text-5xl sm:text-7xl font-extrabold text-blue-900 shadow-inner border-b-8 border-b-blue-600 select-none" id="digit2">?</div>
-                        <button class="btn-stop w-full bg-orange-500 hover:bg-orange-600 active:translate-y-1 text-white font-normal text-sm sm:text-xl py-2 px-1 border-b-4 border-orange-700 rounded-xl transition duration-100 disabled:bg-gray-300 disabled:border-gray-400 disabled:text-gray-500 disabled:cursor-not-allowed shadow-md" id="stopBtn2" onclick="stopDigit(1)" disabled>2번째 멈춤</button>
-                    </div>
-
-                    <!-- Slot Column 3 -->
-                    <div class="slot-column flex flex-col items-center gap-2 flex-1 h-full justify-center">
-                        <div class="digit-box w-full h-[65%] min-h-[160px] sm:min-h-[220px] bg-white border-4 sm:border-6 border-blue-500 rounded-xl sm:rounded-3xl flex justify-center items-center text-5xl sm:text-7xl font-extrabold text-blue-900 shadow-inner border-b-8 border-b-blue-600 select-none" id="digit3">?</div>
-                        <button class="btn-stop w-full bg-orange-500 hover:bg-orange-600 active:translate-y-1 text-white font-normal text-sm sm:text-xl py-2 px-1 border-b-4 border-orange-700 rounded-xl transition duration-100 disabled:bg-gray-300 disabled:border-gray-400 disabled:text-gray-500 disabled:cursor-not-allowed shadow-md" id="stopBtn3" onclick="stopDigit(2)" disabled>3번째 멈춤</button>
-                    </div>
-
-                    <!-- Slot Column 4 -->
-                    <div class="slot-column flex flex-col items-center gap-2 flex-1 h-full justify-center">
-                        <div class="digit-box w-full h-[65%] min-h-[160px] sm:min-h-[220px] bg-white border-4 sm:border-6 border-blue-500 rounded-xl sm:rounded-3xl flex justify-center items-center text-5xl sm:text-7xl font-extrabold text-blue-900 shadow-inner border-b-8 border-b-blue-600 select-none" id="digit4">?</div>
-                        <button class="btn-stop w-full bg-orange-500 hover:bg-orange-600 active:translate-y-1 text-white font-normal text-sm sm:text-xl py-2 px-1 border-b-4 border-orange-700 rounded-xl transition duration-100 disabled:bg-gray-300 disabled:border-gray-400 disabled:text-gray-500 disabled:cursor-not-allowed shadow-md" id="stopBtn4" onclick="stopDigit(3)" disabled>4번째 멈춤</button>
-                    </div>
-
-                </div>
-
-                <!-- Control Panel -->
-                <div class="control-panel flex gap-3 w-full justify-center items-center">
-                    <button class="btn-draw flex-1 bg-red-500 hover:bg-red-600 active:translate-y-1 text-white text-lg sm:text-2xl py-3 px-4 rounded-full border-b-4 border-red-700 shadow-lg transition duration-100 disabled:bg-gray-400 disabled:border-gray-500 disabled:cursor-not-allowed" id="drawBtn" onclick="startSlot()">
-                        추첨 시작!
-                    </button>
-                    <button class="btn-all-stop flex-1 bg-purple-500 hover:bg-purple-600 active:translate-y-1 text-white text-lg sm:text-2xl py-3 px-4 rounded-full border-b-4 border-purple-700 shadow-lg transition duration-100 disabled:bg-gray-300 disabled:border-gray-400 disabled:cursor-not-allowed" id="allStopBtn" onclick="stopAllDigits()" disabled>
-                        한꺼번에 멈춤
-                    </button>
-                </div>
+        <div class="slot-machine">
+            <div class="slot-column">
+                <div class="digit-box" id="digit1">?</div>
+                <button class="btn-stop" id="stopBtn1" onclick="stopDigit(0)" disabled>1번째 멈춤</button>
             </div>
-
-            <!-- RIGHT SECTION: Winner List (Equal Height) -->
-            <div class="right-section w-[38%] sm:w-[35%] bg-white border-4 sm:border-8 border-emerald-500 rounded-3xl sm:rounded-[40px] p-4 sm:p-6 shadow-2xl flex flex-col h-full">
-                <div class="list-title text-emerald-700 text-xl sm:text-3xl font-bold text-center border-b-4 border-dashed border-emerald-200 pb-3 mb-3">
-                    🏆 당첨자 명단 🏆
-                </div>
-                <div class="winner-list-container flex-1 overflow-y-auto pr-1 sm:pr-2" id="winnerList">
-                    <!-- Winners appended here -->
-                </div>
+            <div class="slot-column">
+                <div class="digit-box" id="digit2">?</div>
+                <button class="btn-stop" id="stopBtn2" onclick="stopDigit(1)" disabled>2번째 멈춤</button>
             </div>
-
+            <div class="slot-column">
+                <div class="digit-box" id="digit3">?</div>
+                <button class="btn-stop" id="stopBtn3" onclick="stopDigit(2)" disabled>3번째 멈춤</button>
+            </div>
+            <div class="slot-column">
+                <div class="digit-box" id="digit4">?</div>
+                <button class="btn-stop" id="stopBtn4" onclick="stopDigit(3)" disabled>4번째 멈춤</button>
+            </div>
         </div>
 
-        <!-- School Footer Banner -->
-        <div class="school-footer mt-4 text-center text-sm sm:text-xl text-blue-900 font-bold bg-white/80 backdrop-blur-sm py-2.5 px-6 rounded-2xl shadow-sm border border-blue-100 tracking-wider w-full">
-            ✨ 온마음으로 미래를 여는 행복 김천다수초등학교 ✨
+        <div class="control-panel">
+            <button class="btn-draw" id="drawBtn" onclick="startSlot()">추첨 시작!</button>
+            <button class="btn-all-stop" id="allStopBtn" onclick="stopAllDigits()" disabled>한꺼번에 멈춤</button>
         </div>
-
     </div>
 
-    <!-- WINNER MODAL POPUP -->
-    <div class="modal-overlay fixed inset-0 bg-black/60 backdrop-blur-sm justify-center items-center z-[1000] p-4 hidden" id="resultModal">
-        <div class="modal-content modal-animated bg-white border-8 border-amber-400 rounded-3xl sm:rounded-[40px] p-6 sm:p-12 text-center shadow-2xl relative z-[1001] w-full max-w-lg">
-            <div class="modal-title text-3xl sm:text-5xl text-amber-600 font-bold mb-3 sm:mb-6">🎉 축하합니다! 🎉</div>
-            <div class="modal-code text-5xl sm:text-7xl text-blue-700 tracking-[8px] sm:tracking-[14px] bg-blue-50 border-4 sm:border-6 border-dashed border-blue-400 rounded-3xl py-3 px-6 my-4 inline-block font-extrabold shadow-inner" id="modalCode">0000</div>
-            <br>
-            <button class="modal-close-btn bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xl sm:text-2xl py-3 px-8 sm:px-10 rounded-full border-b-4 border-emerald-700 shadow-md transition transform active:scale-95 mt-4" onclick="closeModal()">확인 및 다음 추첨</button>
+    <!-- 당첨자 명단 영역 (세로 모드에서는 위로 배치됨) -->
+    <div class="right-section">
+        <div class="list-title">🏆 당첨자 명단 🏆</div>
+        <div class="winner-list-container" id="winnerList">
+            <!-- 당첨 내역 추가 위치 -->
         </div>
     </div>
+</div>
+
+<div class="school-footer">
+    ✨ 온마음으로 미래를 여는 행복 김천다수초등학교 ✨
+</div>
+
+<!-- 대형 당첨 팝업 -->
+<div class="modal-overlay" id="resultModal">
+    <div class="modal-content">
+        <div class="modal-title">🎉 축하합니다! 🎉</div>
+        <div class="modal-code" id="modalCode">0000</div>
+        <br>
+        <button class="modal-close-btn" onclick="closeModal()">확인 및 다음 추첨</button>
+    </div>
+</div>
 
 <script>
-    // Audio Context Synthesizer Engine
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     let audioCtx;
     let bgmInterval = null;
@@ -160,7 +434,6 @@
         }
     }
 
-    // Dynamic BGM synth loop
     function startBGM() {
         initAudio();
         if (bgmInterval) return;
@@ -183,7 +456,7 @@
             osc.frequency.value = melodyNotes[step % melodyNotes.length];
             
             const now = audioCtx.currentTime;
-            gain.gain.setValueAtTime(0.05, now);
+            gain.gain.setValueAtTime(0.06, now);
             gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
 
             osc.connect(gain);
@@ -202,7 +475,6 @@
         }
     }
 
-    // Sound effect: Digit Stop 'Ding'
     function playStopSound() {
         initAudio();
         const osc = audioCtx.createOscillator();
@@ -218,7 +490,6 @@
         osc.stop(audioCtx.currentTime + 0.15);
     }
 
-    // Sound effect: Tick sound while rolling
     function playTickSound() {
         initAudio();
         const osc = audioCtx.createOscillator();
@@ -233,12 +504,10 @@
         osc.stop(audioCtx.currentTime + 0.04);
     }
 
-    // Sound effect: Fanfare + Wow Cheer + Fireworks Noise
     function playWowAndFanfare() {
         initAudio();
         const now = audioCtx.currentTime;
 
-        // 1. Wow voice synth sweep
         const wowOsc = audioCtx.createOscillator();
         const wowGain = audioCtx.createGain();
         wowOsc.type = 'sawtooth';
@@ -252,7 +521,6 @@
         wowOsc.start(now);
         wowOsc.stop(now + 0.5);
 
-        // 2. Fireworks pop noise
         const bufferSize = audioCtx.sampleRate * 0.4;
         const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const data = buffer.getChannelData(0);
@@ -273,7 +541,6 @@
         noiseGain.connect(audioCtx.destination);
         noise.start(now);
 
-        // 3. Victory Fanfare Arpeggio
         const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
         notes.forEach((freq, idx) => {
             const osc = audioCtx.createOscillator();
@@ -290,17 +557,15 @@
         });
     }
 
-    // Canvas Confetti at top z-index
     function triggerTopConfetti() {
         confetti({
-            particleCount: 200,
-            spread: 130,
+            particleCount: 180,
+            spread: 120,
             origin: { y: 0.5 },
             zIndex: 9999
         });
     }
 
-    // State Variables
     const historySet = new Set();
     let winnerCount = 0;
     let finalNumbers = [];
@@ -312,7 +577,6 @@
         return arr[Math.floor(Math.random() * arr.length)];
     }
 
-    // Customized Rules Generation for Elementary School Grades/Classes
     function generateSingleCandidate() {
         const d1 = getRandomChoice([1, 2, 3, 4, 5, 6]);
         let d2 = (d1 === 5) ? getRandomChoice([1, 2]) : 1;
@@ -327,7 +591,7 @@
             if (d3 === 0) {
                 d4 = getRandomChoice([1,2,3,4,5,6,7,8,9]);
             } else if (d3 === 1) {
-                d4 = getRandomChoice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]); // 3학년 1반: 0~9 모두 선택 가능
+                d4 = getRandomChoice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
             } else if (d3 === 2) {
                 d4 = getRandomChoice([0, 1, 2]);
             }
@@ -434,15 +698,11 @@
 
     function showModal(code) {
         document.getElementById('modalCode').innerText = code;
-        const modal = document.getElementById('resultModal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        document.getElementById('resultModal').style.display = 'flex';
     }
 
     function closeModal() {
-        const modal = document.getElementById('resultModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+        document.getElementById('resultModal').style.display = 'none';
         document.getElementById('drawBtn').disabled = false;
     }
 
@@ -451,10 +711,10 @@
         const winnerList = document.getElementById('winnerList');
         
         const item = document.createElement('div');
-        item.className = 'winner-item bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-2.5 sm:p-3 mb-2.5 text-base sm:text-xl text-emerald-900 flex justify-between items-center shadow-sm';
+        item.className = 'winner-item';
         item.innerHTML = `
-            <span class="winner-rank bg-emerald-500 text-white px-2.5 py-1 rounded-full text-xs sm:text-sm font-bold">${winnerCount}번 당첨</span>
-            <span class="winner-code text-lg sm:text-2xl tracking-[3px] text-emerald-800 font-extrabold">${code}</span>
+            <span class="winner-rank">${winnerCount}번 당첨</span>
+            <span class="winner-code">${code}</span>
         `;
 
         winnerList.appendChild(item);
