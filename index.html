@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎈 두근두근 경품 뽑기 🎈</title>
+    <title>🎈 김천다수초등학교 학예회회 경품 뽑기 🎈</title>
     <!-- 폭죽 효과 라이브러리 -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
@@ -353,7 +353,7 @@
             white-space: nowrap;
         }
 
-        /* 📋 전체 당첨자 전용 팝업 모달 */
+        /* 📋 스마트폰 전용 전체 당첨자 팝업 모달 (그리드 배치 적용) */
         .all-winners-modal-overlay {
             display: none;
             position: fixed;
@@ -363,19 +363,19 @@
             justify-content: center;
             align-items: center;
             z-index: 2000;
-            padding: 20px;
+            padding: 15px;
         }
 
         .all-winners-modal-content {
             background: white;
             border: 8px solid #10b981;
             border-radius: 30px;
-            padding: 25px 20px;
+            padding: 20px 15px;
             text-align: center;
             box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-            width: 90%;
-            max-width: 450px;
-            max-height: 80vh;
+            width: 95%;
+            max-width: 650px;
+            max-height: 85vh;
             display: flex;
             flex-direction: column;
         }
@@ -385,22 +385,30 @@
             overflow-y: auto;
             margin: 15px 0;
             padding-right: 5px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            align-content: flex-start;
         }
 
-        /* 스마트폰에서 팝업 내 당첨자 항목 디자인 (숫자만 크게 표시) */
+        /* 스마트폰 팝업 내부 당첨 번호 카드 스타일 (기본 세로모드: 2개씩 배치) */
         .all-winners-modal-list .winner-item {
-            justify-content: center;
             background-color: #f0fdf4;
-            border-color: #bbf7d0;
-            padding: 12px;
-            margin-bottom: 8px;
+            border: 2px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 10px 5px;
+            margin-bottom: 0;
+            width: calc(50% - 6px); /* 2열 배치 */
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .all-winners-modal-list .winner-rank {
-            display: none; /* 스마트폰 팝업에서는 '몇 번째' 순번 숨김 */
+            display: none; /* 순번 숨김 */
         }
         .all-winners-modal-list .winner-code {
-            font-size: 1.8rem;
-            letter-spacing: 5px;
+            font-size: 1.4rem;
+            letter-spacing: 3px;
             color: #065f46;
         }
 
@@ -415,7 +423,7 @@
                     display: inline-block; 
                 }
                 .left-section {
-                    padding: 10px 15px; /* 여백을 줄여서 화면 움직임 최소화 */
+                    padding: 10px 15px;
                     min-height: auto;
                 }
                 .slot-machine {
@@ -434,6 +442,15 @@
                 h1 {
                     font-size: 1.5rem;
                     margin-bottom: 2px;
+                }
+                /* 가로모드 팝업에서는 5명씩 배치 (5열) */
+                .all-winners-modal-list .winner-item {
+                    width: calc(20% - 7px);
+                    padding: 8px 2px;
+                }
+                .all-winners-modal-list .winner-code {
+                    font-size: 1.1rem;
+                    letter-spacing: 1px;
                 }
             }
 
