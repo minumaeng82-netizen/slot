@@ -34,7 +34,7 @@
             padding: 12px;
         }
 
-        /* 메인 레이아웃 (PC & 가로모드) */
+        /* 메인 레이아웃 (PC 기본: 2단 배치) */
         .app-layout {
             display: flex;
             flex-direction: row;
@@ -59,9 +59,10 @@
             justify-content: space-between;
             align-items: center;
             min-height: 500px;
+            width: 100%;
         }
 
-        /* 우측: 당첨 명단 */
+        /* 우측: 당첨 명단 (PC 기본) */
         .right-section {
             flex: 0.7;
             background: white;
@@ -167,20 +168,22 @@
 
         .control-panel {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             width: 100%;
             justify-content: center;
             align-items: center;
+            flex-wrap: wrap;
         }
 
-        .btn-draw, .btn-all-stop {
+        .btn-draw, .btn-all-stop, .btn-view-all-mobile {
             font-family: 'Jua', sans-serif;
-            font-size: clamp(1.2rem, 1.8vw, 1.6rem);
-            padding: 12px 20px;
+            font-size: clamp(1.1rem, 1.6vw, 1.5rem);
+            padding: 12px 18px;
             border: none;
             border-radius: 50px;
             cursor: pointer;
             flex: 1;
+            min-width: 120px;
             max-width: 250px;
             white-space: nowrap;
             transition: all 0.1s ease;
@@ -204,7 +207,14 @@
         .btn-all-stop:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 #6d28d9; }
         .btn-all-stop:disabled { background-color: #d1d5db; box-shadow: 0 4px 0 #9ca3af; cursor: not-allowed; }
 
-        /* 당첨자 명단 컨테이너 (기본 PC: 스크롤) */
+        /* 모바일용 명단 모두보기 전용 버튼 (기본 PC에서는 숨김) */
+        .btn-view-all-mobile {
+            background-color: #0ea5e9;
+            color: white;
+            box-shadow: 0 6px 0 #0284c7, 0 10px 15px rgba(0,0,0,0.2);
+            display: none;
+        }
+
         .winner-list-container {
             flex: 1;
             overflow-y: auto;
@@ -252,13 +262,12 @@
             white-space: nowrap;
         }
 
-        /* [당첨자 모두 보기] 토글 버튼 */
         .btn-toggle-list {
             background-color: #0ea5e9;
             color: white;
             font-family: 'Jua', sans-serif;
-            font-size: 1rem;
-            padding: 8px;
+            font-size: 1.05rem;
+            padding: 10px;
             border: none;
             border-radius: 12px;
             cursor: pointer;
@@ -269,7 +278,6 @@
         }
         .btn-toggle-list:hover { background-color: #0284c7; }
 
-        /* 하단 학교 슬로건 (포인트 축소 및 한 줄 고정) */
         .school-footer {
             margin-top: 10px;
             font-size: clamp(0.7rem, 2.2vw, 1.1rem);
@@ -283,11 +291,12 @@
             text-align: center;
             width: 100%;
             max-width: 1400px;
-            white-space: nowrap; /* 한 줄 고정 */
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
+        /* 당첨 팝업 모달 */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -346,53 +355,89 @@
             white-space: nowrap;
         }
 
-        /* 📱 스마트폰 세로 모드 최적화 (1명만 보이게 높이 제한 및 스크롤) */
-        @media (max-width: 800px) and (orientation: portrait) {
-            .app-layout {
-                flex-direction: column-reverse; /* 위: 명단, 아래: 뽑기 */
-                min-height: auto;
-                gap: 12px;
+        /* 📋 전체 당첨자 전용 팝업 모달 */
+        .all-winners-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .all-winners-modal-content {
+            background: white;
+            border: 8px solid #10b981;
+            border-radius: 30px;
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .all-winners-modal-list {
+            flex: 1;
+            overflow-y: auto;
+            margin: 15px 0;
+            padding-right: 5px;
+        }
+
+        /* 📱 스마트폰 전용 세부 미디어 쿼리 */
+        @media (max-width: 900px) {
+            /* 스마트폰 가로 모드: 우측 명단 숨기고 [모두 보기] 버튼 표시 */
+            @media (orientation: landscape) {
+                .right-section {
+                    display: none; /* 가로모드 시 당첨자 명단 완전 비표시 */
+                }
+                .btn-view-all-mobile {
+                    display: inline-block; /* 모두보기 팝업 버튼 표시 */
+                }
+                .digit-box {
+                    height: 100px;
+                    font-size: 2.8rem;
+                }
             }
 
-            .left-section, .right-section {
-                min-height: auto;
-                padding: 12px 10px;
-            }
+            /* 스마트폰 세로 모드: 위(명단 1명만), 아래(슬롯머신) + 팝업 연결 */
+            @media (orientation: portrait) {
+                .app-layout {
+                    flex-direction: column-reverse;
+                    min-height: auto;
+                    gap: 12px;
+                }
 
-            /* 모바일 세로모드에서는 딱 1명(약 65px)만 보이도록 높이 제한 후 스크롤 */
-            .winner-list-container {
-                max-height: 72px; 
-                transition: max-height 0.3s ease;
-            }
+                .left-section, .right-section {
+                    min-height: auto;
+                    padding: 12px 10px;
+                }
 
-            /* 모두 보기 버튼을 눌렀을 때 확장 클래스 */
-            .winner-list-container.expanded {
-                max-height: 220px;
-            }
+                .winner-list-container {
+                    max-height: 65px; /* 딱 1명만 보이도록 고정 */
+                    overflow-y: auto;
+                }
 
-            .digit-box {
-                height: 95px;
-                font-size: 2.8rem;
-                border-width: 4px;
-            }
+                .digit-box {
+                    height: 95px;
+                    font-size: 2.8rem;
+                    border-width: 4px;
+                }
 
-            .slot-machine {
-                padding: 8px 4px;
-                gap: 6px;
-            }
+                .slot-machine {
+                    padding: 8px 4px;
+                    gap: 6px;
+                }
 
-            .btn-stop {
-                font-size: 0.8rem;
-                padding: 5px 0;
-            }
-
-            .control-panel {
-                gap: 8px;
-            }
-
-            .btn-draw, .btn-all-stop {
-                font-size: 1rem;
-                padding: 8px 10px;
+                .btn-stop {
+                    font-size: 0.8rem;
+                    padding: 5px 0;
+                }
             }
         }
     </style>
@@ -400,7 +445,7 @@
 <body onclick="initAudioOnInteraction()">
 
 <div class="app-layout">
-    <!-- 슬롯머신 영역 -->
+    <!-- 좌측: 슬롯머신 영역 -->
     <div class="left-section">
         <h1>🎁 경품 추첨 🎁</h1>
         
@@ -426,16 +471,18 @@
         <div class="control-panel">
             <button class="btn-draw" id="drawBtn" onclick="startSlot()">추첨 시작!</button>
             <button class="btn-all-stop" id="allStopBtn" onclick="stopAllDigits()" disabled>한꺼번에 멈춤</button>
+            <!-- 가로모드 전용 당첨자 모두보기 버튼 -->
+            <button class="btn-view-all-mobile" onclick="openAllWinnersModal()">당첨자 모두 보기</button>
         </div>
     </div>
 
-    <!-- 당첨자 명단 영역 -->
+    <!-- 우측: 당첨자 명단 영역 (PC 및 모바일 세로모드) -->
     <div class="right-section">
         <div class="list-title">🏆 당첨자 명단 🏆</div>
         <div class="winner-list-container" id="winnerList">
             <!-- 당첨 내역 추가 위치 -->
         </div>
-        <button class="btn-toggle-list" id="toggleListBtn" onclick="toggleWinnerList()">📋 당첨자 모두 보기</button>
+        <button class="btn-toggle-list" onclick="openAllWinnersModal()">📋 당첨자 모두 보기 (팝업)</button>
     </div>
 </div>
 
@@ -443,13 +490,24 @@
     ✨ 온마음으로 미래를 여는 행복 김천다수초등학교 ✨
 </div>
 
-<!-- 대형 당첨 팝업 -->
+<!-- 당첨자 개별 결과 대형 팝업 -->
 <div class="modal-overlay" id="resultModal">
     <div class="modal-content">
         <div class="modal-title">🎉 축하합니다! 🎉</div>
         <div class="modal-code" id="modalCode">0000</div>
         <br>
         <button class="modal-close-btn" onclick="closeModal()">확인 및 다음 추첨</button>
+    </div>
+</div>
+
+<!-- 📋 전체 당첨자 목록 전용 팝업 모달 -->
+<div class="all-winners-modal-overlay" id="allWinnersModal">
+    <div class="all-winners-modal-content">
+        <div class="list-title">🏆 전체 당첨자 명단 🏆</div>
+        <div class="all-winners-modal-list" id="popupWinnerList">
+            <!-- 팝업에 복사된 명단 위치 -->
+        </div>
+        <button class="modal-close-btn" onclick="closeAllWinnersModal()">닫기</button>
     </div>
 </div>
 
@@ -604,16 +662,16 @@
         });
     }
 
-    // 당첨자 모두 보기 토글 함수
-    function toggleWinnerList() {
-        const listContainer = document.getElementById('winnerList');
-        const btn = document.getElementById('toggleListBtn');
-        listContainer.classList.toggle('expanded');
-        if (listContainer.classList.contains('expanded')) {
-            btn.innerText = "📋 당첨자 접기";
-        } else {
-            btn.innerText = "📋 당첨자 모두 보기";
-        }
+    // 📋 전체 당첨자 팝업 열기 / 닫기
+    function openAllWinnersModal() {
+        const mainList = document.getElementById('winnerList');
+        const popupList = document.getElementById('popupWinnerList');
+        popupList.innerHTML = mainList.innerHTML; // 현재 당첨 내역 복사
+        document.getElementById('allWinnersModal').style.display = 'flex';
+    }
+
+    function closeAllWinnersModal() {
+        document.getElementById('allWinnersModal').style.display = 'none';
     }
 
     const historySet = new Set();
