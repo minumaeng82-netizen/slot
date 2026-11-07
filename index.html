@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎈 두근두근 대형 초등 경품 뽑기 🎈</title>
+    <title>🎈 두근두근 경품 뽑기 🎈</title>
     <!-- 폭죽 효과 라이브러리 -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
@@ -205,9 +205,8 @@
         }
         .btn-all-stop:hover:not(:disabled) { background-color: #7c3aed; }
         .btn-all-stop:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 #6d28d9; }
-        .btn-all-stop:disabled { background-color: #d1d5db; box-shadow: 0 4px 0 #9ca3af; cursor: not-allowed; }
+        .btn-all-stop:disabled { background-color: #d1d5db; box-shadow: 0 3px 0 #9ca3af; cursor: not-allowed; }
 
-        /* 모바일용 명단 모두보기 전용 버튼 (기본 PC에서는 숨김) */
         .btn-view-all-mobile {
             background-color: #0ea5e9;
             color: white;
@@ -296,7 +295,6 @@
             text-overflow: ellipsis;
         }
 
-        /* 당첨 팝업 모달 */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -376,7 +374,7 @@
             text-align: center;
             box-shadow: 0 25px 50px rgba(0,0,0,0.3);
             width: 90%;
-            max-width: 500px;
+            max-width: 450px;
             max-height: 80vh;
             display: flex;
             flex-direction: column;
@@ -389,26 +387,60 @@
             padding-right: 5px;
         }
 
+        /* 스마트폰에서 팝업 내 당첨자 항목 디자인 (숫자만 크게 표시) */
+        .all-winners-modal-list .winner-item {
+            justify-content: center;
+            background-color: #f0fdf4;
+            border-color: #bbf7d0;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+        .all-winners-modal-list .winner-rank {
+            display: none; /* 스마트폰 팝업에서는 '몇 번째' 순번 숨김 */
+        }
+        .all-winners-modal-list .winner-code {
+            font-size: 1.8rem;
+            letter-spacing: 5px;
+            color: #065f46;
+        }
+
         /* 📱 스마트폰 전용 세부 미디어 쿼리 */
         @media (max-width: 900px) {
-            /* 스마트폰 가로 모드: 우측 명단 숨기고 [모두 보기] 버튼 표시 */
+            /* 스마트폰 가로 모드 */
             @media (orientation: landscape) {
                 .right-section {
-                    display: none; /* 가로모드 시 당첨자 명단 완전 비표시 */
+                    display: none; 
                 }
                 .btn-view-all-mobile {
-                    display: inline-block; /* 모두보기 팝업 버튼 표시 */
+                    display: inline-block; 
+                }
+                .left-section {
+                    padding: 10px 15px; /* 여백을 줄여서 화면 움직임 최소화 */
+                    min-height: auto;
+                }
+                .slot-machine {
+                    padding: 8px;
+                    margin: 5px 0;
                 }
                 .digit-box {
-                    height: 100px;
-                    font-size: 2.8rem;
+                    height: 85px;
+                    font-size: 2.5rem;
+                    border-width: 4px;
+                }
+                .btn-stop {
+                    font-size: 0.75rem;
+                    padding: 4px 0;
+                }
+                h1 {
+                    font-size: 1.5rem;
+                    margin-bottom: 2px;
                 }
             }
 
-            /* 스마트폰 세로 모드: 위(명단 1명만), 아래(슬롯머신) + 팝업 연결 */
+            /* 스마트폰 세로 모드 */
             @media (orientation: portrait) {
                 .app-layout {
-                    flex-direction: column-reverse;
+                    flex-direction: column-reverse; 
                     min-height: auto;
                     gap: 12px;
                 }
@@ -419,7 +451,7 @@
                 }
 
                 .winner-list-container {
-                    max-height: 65px; /* 딱 1명만 보이도록 고정 */
+                    max-height: 65px; 
                     overflow-y: auto;
                 }
 
@@ -447,7 +479,7 @@
 <div class="app-layout">
     <!-- 좌측: 슬롯머신 영역 -->
     <div class="left-section">
-        <h1>🎁 경품 추첨 🎁</h1>
+        <h1>🎁 두근두근 경품 추첨 🎁</h1>
         
         <div class="slot-machine">
             <div class="slot-column">
